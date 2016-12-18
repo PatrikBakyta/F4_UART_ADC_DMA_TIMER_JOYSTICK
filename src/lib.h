@@ -18,6 +18,7 @@ void initUSART(void);
 
 void initADCwithDMA(void);
 
+int *remap(uint8_t ADC_Values[2]);
 char *INTconversionCHAR(uint8_t value);
 
 

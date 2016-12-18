@@ -14,10 +14,14 @@
 #include <misc.h>
 #include <lib.h>
 
-uint8_t ADC_Values[2] = {153, 130}; // hodnoty z ADC v defaultnej polohe
+uint8_t ADC_Values[2] = {128, 128}; // hodnoty z ADC v defaultnej polohe
 
-char *char_pointer;
-int i;
+int *int_pointer; // pointer na pole INT
+char *char_pointer; // pointer na pole CHAR
+
+int default_values[6] = {128,128,128,128,128,128}; // x_min, x_stred, x_max, y...
+
+int q = 0; // pocitadlo strednej hodnoty
 
 void initSYSTEMCLOCK(void) {
 
@@ -63,13 +67,16 @@ extern "C" void TIM2_IRQHandler(void) {
 
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 
+		// premapovanie hodnot
+		int_pointer = remap(ADC_Values);
+
 		// najprv sa posle x potom y
 		for (int j=0; j<2; j++) {
 
 			// konverzia hodnoty z ADC na pole charov, funkcia vracia smernik
-			char_pointer = INTconversionCHAR(ADC_Values[j]);
+			char_pointer = INTconversionCHAR(*(int_pointer+j));
 
-			i = *(char_pointer); // na 1. mieste je pocet cifier
+			int i = *(char_pointer); // na 1. mieste je pocet cifier
 			while (i>0) {
 				while (USART_GetFlagStatus(USART1,USART_FLAG_TXE)==0) {};
 				USART_SendData(USART1,*(char_pointer+i));
@@ -97,6 +104,55 @@ extern "C" void TIM2_IRQHandler(void) {
 	}
 
 	return;
+}
+
+int *remap(uint8_t ADC_Values[2]) {
+
+	// funkcia vracia smernik na nove pole
+
+	static int int_array[2];
+	int rozsah;
+
+	if (q<10) {
+		q++;
+	}
+
+	for (int j=0; j<2; j++) {
+
+		// nastavenie defaultnych strednych hodnot
+		if (q==10) {
+			default_values[j*3+1] = ADC_Values[j];
+			if (j==1) {
+				q = 11;
+			}
+		}
+
+		// nastavenie novych minimalnych/maximalnych hodnot
+		if (ADC_Values[j]<default_values[j*3+0]) {
+			default_values[j*3+0] = ADC_Values[j];
+		} else if (ADC_Values[j]>default_values[j*3+2]) {
+			default_values[j*3+2] = ADC_Values[j];
+		}
+
+		// premapovanie
+		if (ADC_Values[j]>default_values[j*3+1]) {
+			rozsah = default_values[j*3+2]-default_values[j*3+1]; // max-stred
+		} else if (ADC_Values[j]<default_values[j*3+1]) {
+			rozsah = default_values[j*3+1]-default_values[j*3+0]; // stred-min
+		}
+
+		int_array[j] = 128+(ADC_Values[j]-default_values[j*3+1])*(128/(double)rozsah);
+
+		// pre istotu obmedzenie
+		if (int_array[j]>255) {
+			int_array[j] = 255;
+		} else if (int_array[j]<0) {
+			int_array[j] = 0;
+		}
+
+	}
+
+	return int_array;
 }
 
 char *INTconversionCHAR(uint8_t value) {
