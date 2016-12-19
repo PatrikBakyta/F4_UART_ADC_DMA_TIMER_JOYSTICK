@@ -14,12 +14,12 @@
 #include <misc.h>
 #include <lib.h>
 
-uint8_t ADC_Values[2] = {128, 128}; // hodnoty z ADC v defaultnej polohe
+uint16_t ADC_Values[2] = {2048, 2048}; // hodnoty z ADC v defaultnej polohe
 
 int *int_pointer; // pointer na pole INT
 char *char_pointer; // pointer na pole CHAR
 
-int default_values[6] = {128,128,128,128,128,128}; // x_min, x_stred, x_max, y...
+int default_values[6] = {2048,2048,2048,2048,2048,2048}; // x_min, x_stred, x_max, y...
 
 int q = 0; // pocitadlo strednej hodnoty
 
@@ -114,7 +114,7 @@ extern "C" void TIM2_IRQHandler(void) {
 	return;
 }
 
-int *remap(uint8_t ADC_Values[2]) {
+int *remap(uint16_t ADC_Values[2]) {
 
 	// funkcia vracia smernik na nove pole
 
@@ -276,8 +276,8 @@ void initADCwithDMA(void) {
     DMA_InitStruct.DMA_BufferSize = 2;
     DMA_InitStruct.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
     DMA_InitStruct.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    DMA_InitStruct.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; // Reads 8 bit values
-    DMA_InitStruct.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; // Stores 8 bit values
+    DMA_InitStruct.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord; // Reads 8 bit values
+    DMA_InitStruct.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord; // Stores 8 bit values
     DMA_InitStruct.DMA_Mode = DMA_Mode_Circular;
     DMA_InitStruct.DMA_Priority = DMA_Priority_High;
     DMA_InitStruct.DMA_FIFOMode = DMA_FIFOMode_Disable;
@@ -302,7 +302,7 @@ void initADCwithDMA(void) {
 
     // ADC1 Init
     ADC_DeInit();
-    ADC_InitStruct.ADC_Resolution = ADC_Resolution_8b; // Input voltage is converted into a 8bit int (max 255)
+    ADC_InitStruct.ADC_Resolution = ADC_Resolution_12b; // Input voltage is converted into a 8bit int (max 255)
     ADC_InitStruct.ADC_ScanConvMode = ENABLE; // The scan is configured in multiple channels
     ADC_InitStruct.ADC_ContinuousConvMode = ENABLE; // Continuous conversion: input signal is sampled more than once
     ADC_InitStruct.ADC_ExternalTrigConv = 0;
