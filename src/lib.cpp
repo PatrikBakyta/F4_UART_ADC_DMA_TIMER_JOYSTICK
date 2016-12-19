@@ -23,6 +23,8 @@ int default_values[6] = {128,128,128,128,128,128}; // x_min, x_stred, x_max, y..
 
 int q = 0; // pocitadlo strednej hodnoty
 
+extern bool map; // premenna zapnuteho/vypnuteho mapovania
+
 void initSYSTEMCLOCK(void) {
 
 	RCC_HSICmd(ENABLE);
@@ -68,13 +70,19 @@ extern "C" void TIM2_IRQHandler(void) {
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 
 		// premapovanie hodnot
-		int_pointer = remap(ADC_Values);
+		if (map==true) {
+			int_pointer = remap(ADC_Values);
+		}
 
 		// najprv sa posle x potom y
 		for (int j=0; j<2; j++) {
 
 			// konverzia hodnoty z ADC na pole charov, funkcia vracia smernik
-			char_pointer = INTconversionCHAR(*(int_pointer+j));
+			if (map==true) {
+				char_pointer = INTconversionCHAR(*(int_pointer+j));
+			} else {
+				char_pointer = INTconversionCHAR(*(ADC_Values+j));
+			}
 
 			int i = *(char_pointer); // na 1. mieste je pocet cifier
 			while (i>0) {

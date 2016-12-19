@@ -43,9 +43,13 @@ SOFTWARE.
 **===========================================================================
 */
 
+bool map; // premenna zapnuteho/vypnuteho mapovania
+
 int main(void) {
 
 	initSYSTEMCLOCK();
+
+	map = true; // true/false - mapovanie zapnute/vypnute
 
 	initUSART();
 	initTIMERwithINTERRUPT(100); // TIM2, param: hodnota resetu v ms
