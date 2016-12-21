@@ -51,6 +51,7 @@ int main(void) {
 
 	map = false; // true/false - mapovanie zapnute/vypnute
 
+	InitADC1withDMA2();
 
 	InitTIM(TIM2, 16000, 100); // TIM 2-7, 12-14 na APB1, preddelicka, reset v ms
 	EnableInterrupt(TIM2_IRQn, 8, 0);
