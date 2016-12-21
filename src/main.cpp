@@ -47,14 +47,17 @@ bool map; // premenna zapnuteho/vypnuteho mapovania
 
 int main(void) {
 
-	initSYSTEMCLOCK();
+	InitSYSTEMCLOCK();
 
-	map = true; // true/false - mapovanie zapnute/vypnute
+	map = false; // true/false - mapovanie zapnute/vypnute
 
-	initUSART();
-	initTIMERwithINTERRUPT(100); // TIM2, param: hodnota resetu v ms
 
-	initADCwithDMA();
+	InitTIM(TIM2, 16000, 100); // TIM 2-7, 12-14 na APB1, preddelicka, reset v ms
+	EnableInterrupt(TIM2_IRQn, 8, 0);
+
+	InitUART1viaCONVERTER();
+	EnableInterrupt(USART1_IRQn, 0, 0);
+
 
 	while (1) {
 

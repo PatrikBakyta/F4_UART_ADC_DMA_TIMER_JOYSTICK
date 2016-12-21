@@ -9,16 +9,18 @@
 #define LIB_H_
 
 
-void initSYSTEMCLOCK(void);
+void InitSYSTEMCLOCK(void);
+void EnableInterrupt(uint8_t IRQChannel, uint8_t Preemption, uint8_t Sub);
 
-void initTIMERwithINTERRUPT(uint16_t TimerVal);
+void InitTIM(TIM_TypeDef* Timer, uint16_t Prescaler, uint32_t Period);
 extern "C" void TIM2_IRQHandler(void);
 
-void initUSART(void);
+void InitUART1viaCONVERTER(void);
+extern "C" void USART1_IRQHandler(void);
 
-void initADCwithDMA(void);
-
-int *remap(uint16_t ADC_Values[2]);
+void InitADC1withDMA2(void);
+void ADC_print(uint8_t array_vals[2]);
+int *remap(uint8_t array_values[2]);
 char *INTconversionCHAR(uint8_t value);
 
 
